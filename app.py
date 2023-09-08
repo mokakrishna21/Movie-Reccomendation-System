@@ -58,6 +58,8 @@ selected_movie = st.selectbox(
     movie_list
 )
 
+# ... (previous code)
+
 if st.button('Show Recommendation'):
     recommended_movies = recommend(selected_movie, num_recommendations=5)
     for movie_name, movie_poster, movie_id in recommended_movies:
@@ -75,6 +77,8 @@ if st.button('Show Recommendation'):
             st.write("Average Vote:", movie_details.vote_average)
             st.write("Vote Count:", movie_details.vote_count)
             st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            st.write("Cast Data:", movie_details.casts)  # Debugging: Display cast data
             st.write("Cast:")
             for cast in movie_details.casts['cast'][:5]:
                 st.write(f"- {cast['name']} as {cast['character']}")
+
