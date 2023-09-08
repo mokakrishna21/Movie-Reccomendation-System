@@ -28,12 +28,6 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
-# Function to fetch movie details
-def fetch_movie_details(movie_id):
-    movie_api = Movie()
-    movie_details = movie_api.details(movie_id)
-    return movie_details
-
 # Function to recommend movies
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
@@ -81,5 +75,7 @@ if st.button('Show Recommendation'):
             st.write("Vote Count:", movie_details.vote_count)
             st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
             st.write("Cast:")
-            for cast in movie_details.casts['cast'][:5]:
-                st.write(f"- {cast['name']} as {cast['character']}")
+            cast_info = movie_details.casts.get('cast', [])
+            if cast_info:
+                for cast in cast_info[:5]:
+                    st.write(f"- {cast['name']} as {cast['character']}")
