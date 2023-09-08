@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
+import pprint
 
 # Load movie data and perform necessary setup
 movies = pickle.load(open('movie_list.pkl', 'rb'))
@@ -29,6 +30,17 @@ def fetch_movie_details(movie_id):
     movie_api = Movie()
     movie_details = movie_api.details(movie_id)
     return movie_details
+
+# Function to extract cast information
+def get_cast_info(movie_details):
+    cast_info = []
+    if 'credits' in movie_details:
+        cast_list = movie_details['credits']['cast']
+        for cast_member in cast_list[:5]:
+            cast_name = cast_member.get('name', 'N/A')
+            character_name = cast_member.get('character', 'N/A')
+            cast_info.append(f"{cast_name} as {character_name}")
+    return cast_info
 
 # Function to recommend movies
 def recommend(movie, num_recommendations=10):
@@ -74,12 +86,14 @@ if st.button('Show Recommendation'):
             st.write("Vote Count:", movie_details.get('vote_count', 'N/A'))
             st.write("Genres:", ", ".join([genre['name'] for genre in movie_details.get('genres', [])]))
             
-            cast_info = movie_details.get('credits', {}).get('cast', [])[:5]
+            # Print the structure of movie_details to inspect it
+            st.write("Movie Details Structure:")
+            pprint.pprint(movie_details)
+            
+            cast_info = get_cast_info(movie_details)
             if cast_info:
                 st.write("Cast:")
                 for cast in cast_info:
-                    cast_name = cast.get('name', 'N/A')
-                    character_name = cast.get('character', 'N/A')
-                    st.write(f"- {cast_name} as {character_name}")
+                    st.write(f"- {cast}")
             else:
                 st.write("Cast information not available.")
