@@ -96,13 +96,16 @@ if st.button('Show Recommendation'):
                 st.write("Vote Count:", movie_details.vote_count)
                 st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
 
-                # Fetch and display cast information
+                # Attempt to fetch and display cast information
                 cast_info = fetch_cast_info(movie_id)
                 st.write("Cast:")
-                for cast in cast_info[:5]:
-                    try:
-                        st.write(f"- {cast['name']} as {cast['character']}")
-                    except Exception as e:
-                        st.warning("Error displaying cast member.")
+                if cast_info:
+                    for cast in cast_info[:5]:
+                        try:
+                            st.write(f"- {cast['name']} as {cast['character']}")
+                        except Exception as e:
+                            st.warning("Error displaying cast member.")
+                else:
+                    st.warning("No cast information available.")
             else:
-                st.write("Movie details not available.")
+                st.warning("Movie details not available.")
