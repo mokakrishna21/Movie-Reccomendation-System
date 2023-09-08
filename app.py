@@ -69,6 +69,11 @@ if st.button('Show Recommendation'):
             st.write("Average Vote:", movie_details.vote_average)
             st.write("Vote Count:", movie_details.vote_count)
             st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            st.write("Cast:")
+            cast = movie_details.get('cast', [])
+            for actor in cast[:5]:
+                st.write(f"- {actor['name']} as {actor['character']}")
+
             # st.write("Cast:")
             # for cast in str(movie_details.casts['cast'][:5]):
             #     st.write(f"- {cast['name']} as {cast['character']}")
