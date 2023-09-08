@@ -69,8 +69,9 @@ if st.button('Show Recommendation'):
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
             # Display movie details
-            expander.markdown(f"**{movie_name}**")
-            expander.write("Overview:", movie_details.overview)
+            expander.write(f"**{movie_name}**")
+            expander.write("Overview:")
+            expander.write(movie_details.overview)
             expander.write("Release Date:", movie_details.release_date)
             expander.write("Average Vote:", movie_details.vote_average)
             expander.write("Vote Count:", movie_details.vote_count)
