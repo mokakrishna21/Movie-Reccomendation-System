@@ -63,27 +63,12 @@ if st.button('Show Recommendation'):
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
             # Display the movie title in bigger and bold text
-            st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-            st.write("Overview:", movie_details.overview)
-            st.write("Release Date:", movie_details.release_date)
-            st.write("Average Vote:", movie_details.vote_average)
-            st.write("Vote Count:", movie_details.vote_count)
-            st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
-            st.write("Cast:")
-            cast = movie_details.get('cast', [])
-            if cast:
-                for actor in cast[:5]:
-                    st.write(f"- {actor.get('name', 'N/A')} as {actor.get('character', 'N/A')}")
-                else:
-                    st.write("Cast information not available.")
-
-
-            # st.write("Cast:")
-            # for cast in str(movie_details.casts['cast'][:5]):
-            #     st.write(f"- {cast['name']} as {cast['character']}")
-            # if 'cast' in movie_details:
-            #     for cast in movie_details['cast'][:5]:
-            #         st.write(f"- {cast.get('name', 'Unknown')} as {cast.get('character', 'Unknown')}")
-            # else:
-            #     st.write("Cast information not available.")
-
+            expander.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
+            expander.write("Overview:", movie_details.overview)
+            expander.write("Release Date:", movie_details.release_date)
+            expander.write("Average Vote:", movie_details.vote_average)
+            expander.write("Vote Count:", movie_details.vote_count)
+            expander.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            expander.write("Cast:")
+            for cast in movie_details.casts['cast'][:5]:
+                expander.write(f"- {cast['name']} as {cast['character']}")
