@@ -1,76 +1,92 @@
 import pickle
 import streamlit as st
 import requests
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
 
 # Load movie data from your movie_list.pkl
 with open('movie_list.pkl', 'rb') as file:
     movies = pickle.load(file)
 
-cv = CountVectorizer(max_features=5000, stop_words='english')
-vector = cv.fit_transform(movies['tags']).toarray()
-similarity = cosine_similarity(vector)
-
+# Initialize TMDb API
 tmdb = TMDb()
 tmdb.api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"
 
 def fetch_poster(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
-    data = requests.get(url)
-    data = data.json()
-    poster_path = data['poster_path']
-    full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-    return full_path
+    try:
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
+        data = requests.get(url)
+        data = data.json()
+        poster_path = data['poster_path']
+        full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+        return full_path
+    except Exception as e:
+        st.error("Error fetching poster.")
+        return None
 
 def fetch_movie_details(movie_id):
-    movie_api = Movie()
-    movie_details = movie_api.details(movie_id)
-    return movie_details
+    try:
+        movie_api = Movie()
+        movie_details = movie_api.details(movie_id)
+        return movie_details
+    except Exception as e:
+        st.error("Error fetching movie details.")
+        return None
 
 def recommend(movie, num_recommendations=10):
-    index = movies[movies['title'] == movie].index[0]
-    distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
-    recommended_movies = []
-    for i in distances[1:num_recommendations + 1]:
-        movie_id = movies.iloc[i[0]].movie_id
-        recommended_movies.append((movies.iloc[i[0]].title, fetch_poster(movie_id), movie_id))
+    try:
+        index = movies[movies['title'] == movie].index[0]
+        cv = CountVectorizer(max_features=5000, stop_words='english')
+        vector = cv.fit_transform(movies['tags']).toarray()
+        similarity = cosine_similarity(vector)
+        distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
+        recommended_movies = []
+        for i in distances[1:num_recommendations + 1]:
+            movie_id = movies.iloc[i[0]].movie_id
+            recommended_movies.append((movies.iloc[i[0]].title, fetch_poster(movie_id), movie_id))
+        return recommended_movies
+    except Exception as e:
+        st.error("Error generating recommendations.")
+        return []
 
-    return recommended_movies
-
-st.markdown(
-    """
-    <div style="text-align: center;">
-        <h1 style="font-size: 48px;">Poppy's Recommender System</h1>
-    </div>
-    """,
-    unsafe_allow_html=True
+st.set_page_config(
+    page_title="Poppy's Movie Recommender",
+    page_icon=":movie_camera:",
+    layout="wide",
 )
 
-movie_list = movies['title'].values
-selected_movie = st.selectbox(
-    "Type or select a movie from the dropdown",
-    movie_list
-)
+st.title("Poppy's Movie Recommender")
 
-if st.button('Show Recommendation'):
-    recommended_movies = recommend(selected_movie, num_recommendations=5)
-    for movie_name, movie_poster, movie_id in recommended_movies:
-        st.image(movie_poster, use_column_width=True)
+st.sidebar.header("Settings")
+selected_movie = st.sidebar.selectbox("Select a movie:", movies['title'].values)
+num_recommendations = st.sidebar.slider("Number of Recommendations", min_value=1, max_value=20, value=5)
 
-        movie_details = fetch_movie_details(movie_id)
-        # Display the movie title in bigger and bold text
-        st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-        st.write("Overview:", movie_details.overview)
-        st.write("Release Date:", movie_details.release_date)
-        st.write("Average Vote:", movie_details.vote_average)
-        st.write("Vote Count:", movie_details.vote_count)
-        st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+if st.sidebar.button('Show Recommendations'):
+    st.sidebar.info("Fetching recommendations...")
+
+    recommended_movies = recommend(selected_movie, num_recommendations)
+    
+    if recommended_movies:
+        st.subheader("Recommended Movies:")
+        cols = st.columns(5)
+        for col, (movie_name, movie_poster, movie_id) in zip(cols, recommended_movies):
+            with col:
+                st.image(movie_poster, use_column_width=True)
         
-        # Fetch and display cast information
-        cast_info = movie_details.casts['cast'][:5]
-        st.write("Cast:")
-        for cast in cast_info:
-            st.write(f"- {cast['name']} as {cast['character']}")
+        st.subheader("Movie Details:")
+        movie_details = fetch_movie_details(recommended_movies[0][2])
+        if movie_details:
+            st.write(f"**Title:** {movie_details.title}")
+            st.write(f"**Overview:** {movie_details.overview}")
+            st.write(f"**Release Date:** {movie_details.release_date}")
+            st.write(f"**Average Vote:** {movie_details.vote_average}")
+            st.write(f"**Vote Count:** {movie_details.vote_count}")
+            st.write(f"**Genres:** {', '.join([genre.name for genre in movie_details.genres])}")
+            
+            cast_info = movie_details.casts['cast'][:5]
+            st.subheader("Cast:")
+            for cast in cast_info:
+                st.write(f"- {cast['name']} as {cast['character']}")
+        else:
+            st.warning("Movie details not available.")
+    else:
+        st.warning("No recommendations found.")
