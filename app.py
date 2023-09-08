@@ -6,41 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
 
-movies = pickle.load(open('movie_list.pkl', 'rb'))
-cv = CountVectorizer(max_features=5000, stop_words='english')
-vector = cv.fit_transform(movies['tags']).toarray()
-similarity = cosine_similarity(vector)
-
-tmdb = TMDb()
-tmdb.api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"
-
-def fetch_poster(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
-    data = requests.get(url)
-    data = data.json()
-    poster_path = data['poster_path']
-    full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-    return full_path
-
-def fetch_cast_info(movie_id):
-    movie_api = Movie()
-    credits = movie_api.credits(movie_id)
-    cast = credits['cast']
-    return cast
-
-def recommend(movie, num_recommendations=10):
-    index = movies[movies['title'] == movie].index[0]
-    distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
-    recommended_movies = []
-    for i in distances[1:num_recommendations + 1]:
-        movie_id = movies.iloc[i[0]]['movie_id']
-        recommended_movies.append((movie_id, fetch_poster(movie_id)))
-    return recommended_movies
-
-def fetch_movie_details(movie_id):
-    movie_api = Movie()
-    movie_details = movie_api.details(movie_id)
-    return movie_details
+# ... (previous code remains unchanged)
 
 st.set_page_config(
     page_title="Poppy's Movie Recommender",
@@ -60,9 +26,9 @@ if st.sidebar.button('Show Recommendations'):
     recommended_movies = recommend(selected_movie, num_recommendations)
     
     st.subheader("Recommended Movies:")
-    row = st.beta_columns(5)
-    for movie_id, movie_poster in recommended_movies:
-        with row.pop():
+    cols = st.columns(5)  # Use st.columns instead of st.beta_columns
+    for col, (movie_id, movie_poster) in zip(cols, recommended_movies):
+        with col:
             st.image(movie_poster, use_column_width=True)
 
     st.subheader("Movie Details:")
