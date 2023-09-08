@@ -27,6 +27,14 @@ def fetch_movie_details(movie_id):
     movie_details = movie_api.details(movie_id)
     return movie_details
 
+def fetch_cast_info(movie_id):
+    movie_api = Movie()
+    credits = movie_api.credits(movie_id)
+    if 'cast' in credits:
+        return credits['cast'][:5]  # Limit to the first 5 cast members
+    else:
+        return None
+
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
@@ -69,13 +77,13 @@ if st.button('Show Recommendation'):
             st.write("Average Vote:", movie_details.vote_average)
             st.write("Vote Count:", movie_details.vote_count)
             st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
-            def fetch_cast_info(movie_id):
-            movie_api = Movie()
-            credits = movie_api.credits(movie_id)
-            if 'cast' in credits:
-                return credits['cast'][:5]  # Limit to the first 5 cast members
+            cast_info = fetch_cast_info(movie_id)
+            if cast_info:
+                st.write("Cast:")
+                for cast in cast_info:
+                    st.write(f"- {cast['name']} as {cast['character']}")
             else:
-                return None
-
-
+                st.write("Cast information not available.")
+else:
+    st.write("Click 'Show Recommendation' to get movie recommendations.")
 
