@@ -17,7 +17,7 @@ cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
 
-# Function to fetch movie poster URL
+# Function to fetch movie poster
 def fetch_poster(movie_id):
     try:
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
@@ -55,7 +55,7 @@ def recommend(movie, num_recommendations=10):
         st.error("Error generating recommendations.")
         return []
 
-# Streamlit UI
+# Streamlit app
 st.markdown(
     """
     <div style="text-align: center;">
@@ -73,10 +73,14 @@ selected_movie = st.selectbox(
 
 if st.button('Show Recommendation'):
     recommended_movies = recommend(selected_movie, num_recommendations=5)
-    for movie_id, movie_poster in recommended_movies:
+    for movie_id, _ in recommended_movies:
         col1, col2 = st.columns([1, 3])
         with col1:
-            st.image(movie_poster, use_column_width=True)
+            movie_poster = fetch_poster(movie_id)
+            if movie_poster:
+                st.image(movie_poster, use_column_width=True)
+            else:
+                st.write("Poster not available.")
 
         with col2:
             # Fetch movie details here using the movie_id
