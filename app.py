@@ -22,6 +22,13 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
+# Define a function to fetch cast information
+def fetch_cast_info(movie_id):
+    movie_api = Movie()
+    credits = movie_api.credits(movie_id)
+    cast = credits['cast']
+    return cast
+
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
@@ -74,10 +81,3 @@ if st.button('Show Recommendation'):
             st.write("Cast:")
             for cast in cast_info:
                 st.write(f"- {cast['name']} as {cast['character']}")
-
-# Define a function to fetch cast information
-def fetch_cast_info(movie_id):
-    movie_api = Movie()
-    credits = movie_api.credits(movie_id)
-    cast = credits['cast']
-    return cast
