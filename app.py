@@ -45,11 +45,16 @@ def fetch_cast_info(movie_id):
     try:
         movie_api = Movie()
         credits = movie_api.credits(movie_id)
-        cast = credits['cast']
-        return cast
+        if 'cast' in credits:
+            cast = credits['cast']
+            return cast
+        else:
+            st.warning("No cast information available for this movie.")
+            return []
     except Exception as e:
         st.error(f"Error fetching cast information: {str(e)}")
         return []
+
 
 
 # Function to recommend movies
