@@ -22,32 +22,27 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
-def fetch_movie_details(movie_id):
-    movie_api = Movie()
-    movie_details = movie_api.details(movie_id)
-    return movie_details
-
+# Define a function to fetch cast information
 def fetch_cast_info(movie_id):
     movie_api = Movie()
     credits = movie_api.credits(movie_id)
-    cast_info = []
-    if 'cast' in credits and isinstance(credits['cast'], list):
-        # Limit to the first 5 cast members
-        for member in credits['cast']:
-            if 'name' in member and 'character' in member:
-                cast_info.append({"name": member['name'], "character": member['character']})
-    return cast_info
-
+    cast = credits['cast']
+    return cast
 
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
     recommended_movies = []
     for i in distances[1:num_recommendations + 1]:
-        movie_id = movies.iloc[i[0]].movie_id
-        recommended_movies.append((movies.iloc[i[0]].title, fetch_poster(movie_id), movie_id))
+        movie_id = movies.iloc[i[0]]['movie_id']
+        recommended_movies.append((movie_id, fetch_poster(movie_id)))
 
     return recommended_movies
+
+def fetch_movie_details(movie_id):
+    movie_api = Movie()
+    movie_details = movie_api.details(movie_id)
+    return movie_details
 
 st.markdown(
     """
@@ -66,27 +61,26 @@ selected_movie = st.selectbox(
 
 if st.button('Show Recommendation'):
     recommended_movies = recommend(selected_movie, num_recommendations=5)
-    for movie_name, movie_poster, movie_id in recommended_movies:
+    for movie_id, movie_poster in recommended_movies:
         col1, col2 = st.columns([1, 3])
         with col1:
             st.image(movie_poster, use_column_width=True)
 
         with col2:
-            expander = st.expander(movie_name)
+            # Fetch movie details here using the movie_id
             movie_details = fetch_movie_details(movie_id)
-            # Display the movie title in bigger and bold text
-            st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-            st.write("Overview:", movie_details.overview)
-            st.write("Release Date:", movie_details.release_date)
-            st.write("Average Vote:", movie_details.vote_average)
-            st.write("Vote Count:", movie_details.vote_count)
-            st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
-            cast_info = fetch_cast_info(movie_id)
-            if cast_info:
+            if movie_details:
+                st.write("Movie Title:", movie_details.title)
+                st.write("Overview:", movie_details.overview)
+                st.write("Release Date:", movie_details.release_date)
+                st.write("Average Vote:", movie_details.vote_average)
+                st.write("Vote Count:", movie_details.vote_count)
+                st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+
+                # Fetch and display cast information
+                cast_info = fetch_cast_info(movie_id)
                 st.write("Cast:")
                 for cast in cast_info:
                     st.write(f"- {cast['name']} as {cast['character']}")
             else:
-                st.write("Cast information not available.")
-else:
-    st.write("Click 'Show Recommendation' to get movie recommendations.")
+                st.write("Movie details not available.")
