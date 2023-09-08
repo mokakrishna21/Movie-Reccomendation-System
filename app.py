@@ -70,7 +70,7 @@ if st.button('Show Recommendation'):
             # Fetch movie details here using the movie_id
             movie_details = fetch_movie_details(movie_id)
             if movie_details:
-                st.write("", movie_details.title)
+                st.write("", movie_details.title)  # Normal size
                 st.write("Overview:", movie_details.overview)
                 st.write("Release Date:", movie_details.release_date)
                 st.write("Average Vote:", movie_details.vote_average)
@@ -81,6 +81,9 @@ if st.button('Show Recommendation'):
                 cast_info = fetch_cast_info(movie_id)
                 st.write("Cast:")
                 for i, cast in enumerate(cast_info[:5]):  # Display only the first 5 cast members
-                    st.write(f"{cast['name']} as {cast['character']}")
+                    if i == 0:  # Make the first cast member's name bigger
+                        st.markdown(f"<p style='font-size: 16px;'>{cast['name']} as {cast['character']}</p>", unsafe_allow_html=True)
+                    else:
+                        st.write(f"{cast['name']} as {cast['character']}")
             else:
                 st.write("Movie details not available.")
