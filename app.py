@@ -22,9 +22,12 @@ def fetch_poster(movie_id):
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
         data = requests.get(url)
         data = data.json()
-        poster_path = data['poster_path']
-        full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-        return full_path
+        if 'poster_path' in data:
+            poster_path = data['poster_path']
+            full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+            return full_path
+        else:
+            return None
     except Exception as e:
         st.error("Error fetching poster.")
         return None
@@ -85,7 +88,10 @@ if st.button('Show Recommendation'):
     for movie_id, movie_poster in recommended_movies:
         col1, col2 = st.columns([1, 3])
         with col1:
-            st.image(movie_poster, use_column_width=True)
+            if movie_poster:
+                st.image(movie_poster, use_column_width=True)
+            else:
+                st.write("Poster not available")
 
         with col2:
             # Fetch movie details here using the movie_id
@@ -104,7 +110,7 @@ if st.button('Show Recommendation'):
                 if cast_info:
                     st.write("Cast:")
                     for cast in cast_info[:5]:
-                        st.write(f"- {cast['name']} as {cast.get('character', 'N/A')}")
+                        st.write(f"- {cast.get('name', 'N/A')} as {cast.get('character', 'N/A')}")
                 else:
                     st.write("Cast information not available.")
             else:
