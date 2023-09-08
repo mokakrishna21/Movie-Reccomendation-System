@@ -40,7 +40,7 @@ def fetch_movie_details(movie_id):
         st.error("Error fetching movie details.")
         return None
 
-# Function to fetch cast information
+# Function to fetch cast information with error handling
 def fetch_cast_info(movie_id):
     try:
         movie_api = Movie()
@@ -48,8 +48,9 @@ def fetch_cast_info(movie_id):
         cast = credits['cast']
         return cast
     except Exception as e:
-        st.error("Error fetching cast information.")
+        st.error(f"Error fetching cast information: {str(e)}")
         return []
+
 
 # Function to recommend movies
 def recommend(movie, num_recommendations=10):
