@@ -68,16 +68,18 @@ if st.button('Show Recommendation'):
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
             st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-            st.write("Overview:", movie_details['overview'])
-            st.write("Release Date:", movie_details['release_date'])
-            st.write("Average Vote:", movie_details['vote_average'])
-            st.write("Vote Count:", movie_details['vote_count'])
-            st.write("Genres:", ", ".join([genre['name'] for genre in movie_details['genres']]))
+            st.write("Overview:", movie_details.get('overview', 'N/A'))
+            st.write("Release Date:", movie_details.get('release_date', 'N/A'))
+            st.write("Average Vote:", movie_details.get('vote_average', 'N/A'))
+            st.write("Vote Count:", movie_details.get('vote_count', 'N/A'))
+            st.write("Genres:", ", ".join([genre['name'] for genre in movie_details.get('genres', [])]))
             
-            cast_info = movie_details.get('casts', {}).get('cast', [])[:5]
+            cast_info = movie_details.get('credits', {}).get('cast', [])[:5]
             if cast_info:
                 st.write("Cast:")
                 for cast in cast_info:
-                    st.write(f"- {cast.get('name', 'N/A')} as {cast.get('character', 'N/A')}")
+                    cast_name = cast.get('name', 'N/A')
+                    character_name = cast.get('character', 'N/A')
+                    st.write(f"- {cast_name} as {character_name}")
             else:
                 st.write("Cast information not available.")
