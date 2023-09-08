@@ -26,8 +26,11 @@ def fetch_poster(movie_id):
 def fetch_cast_info(movie_id):
     movie_api = Movie()
     credits = movie_api.credits(movie_id)
-    cast = credits['cast'][:5]  # Limit to the first 5 cast members
-    return cast
+    if 'cast' in credits:
+        cast = credits['cast'][:5]  # Limit to the first 5 cast members
+        return cast
+    else:
+        return []
 
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
@@ -71,7 +74,6 @@ if st.button('Show Recommendation'):
             movie_details = fetch_movie_details(movie_id)
             if movie_details:
                 st.write("Movie Title:", movie_details.title)
-                st.write("Overview:", movie_details.overview)
                 st.write("Release Date:", movie_details.release_date)
                 st.write("Average Vote:", movie_details.vote_average)
                 st.write("Vote Count:", movie_details.vote_count)
@@ -79,8 +81,11 @@ if st.button('Show Recommendation'):
 
                 # Fetch and display cast information (limited to 5 members)
                 cast_info = fetch_cast_info(movie_id)
-                st.write("Cast:")
-                for cast in cast_info:
-                    st.write(f"- {cast['name']} as {cast['character']}")
+                if cast_info:
+                    st.write("Cast:")
+                    for cast in cast_info:
+                        st.write(f"- {cast['name']} as {cast['character']}")
+                else:
+                    st.write("Cast information not available.")
             else:
                 st.write("Movie details not available.")
