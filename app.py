@@ -70,9 +70,11 @@ if st.button('Show Recommendation'):
             st.write("Vote Count:", movie_details.vote_count)
             st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
             st.write("Cast:")
-            if 'cast' in movie_details:
-                for cast in movie_details['cast'][:5]:
-                    st.write(f"- {cast.get('name', 'Unknown')} as {cast.get('character', 'Unknown')}")
-            else:
-                st.write("Cast information not available.")
+            for cast in str(movie_details.casts['cast'][:5]):
+                st.write(f"- {cast['name']} as {cast['character']}")
+            # if 'cast' in movie_details:
+            #     for cast in movie_details['cast'][:5]:
+            #         st.write(f"- {cast.get('name', 'Unknown')} as {cast.get('character', 'Unknown')}")
+            # else:
+            #     st.write("Cast information not available.")
 
