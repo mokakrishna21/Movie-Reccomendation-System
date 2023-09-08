@@ -41,19 +41,6 @@ def fetch_movie_details(movie_id):
         st.error("Error fetching movie details.")
         return None
 
-def fetch_cast_info(movie_id):
-    try:
-        movie_api = Movie()
-        credits = movie_api.credits(movie_id)
-        if 'cast' in credits:
-            cast = credits['cast']
-            return cast
-        else:
-            return []
-    except Exception as e:
-        st.error("Error fetching cast information.")
-        return []
-
 def recommend(movie, num_recommendations=10):
     try:
         index = movies[movies['title'] == movie].index[0]
@@ -104,14 +91,5 @@ if st.button('Show Recommendation'):
                 st.write("Average Vote:", movie_details.vote_average)
                 st.write("Vote Count:", movie_details.vote_count)
                 st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
-
-                # Fetch and display cast information
-                cast_info = fetch_cast_info(movie_id)
-                if cast_info:
-                    st.write("Cast:")
-                    for cast in cast_info[:5]:
-                        st.write(f"- {cast.get('name', 'N/A')} as {cast.get('character', 'N/A')}")
-                else:
-                    st.write("Cast information not available.")
             else:
                 st.write("Movie details not available.")
