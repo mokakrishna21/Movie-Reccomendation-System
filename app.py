@@ -29,8 +29,8 @@ def fetch_movie_details(movie_id):
 
 def get_cast_info(movie_details):
     cast_info = []
-    if 'casts' in movie_details and 'cast' in movie_details['casts']:
-        for cast in movie_details['casts']['cast'][:5]:
+    if 'credits' in movie_details and 'cast' in movie_details['credits']:
+        for cast in movie_details['credits']['cast'][:5]:
             cast_name = cast['name']
             character_name = cast['character']
             cast_info.append(f"{cast_name} as {character_name}")
@@ -76,7 +76,7 @@ if st.button('Show Recommendation'):
             st.write("Release Date:", movie_details.release_date)
             st.write("Average Vote:", movie_details.vote_average)
             st.write("Vote Count:", movie_details.vote_count)
-            st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            st.write("Genres:", ", ".join([genre['name'] for genre in movie_details['genres']]))
             
             cast_info = get_cast_info(movie_details)
             if cast_info:
