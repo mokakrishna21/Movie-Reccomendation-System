@@ -26,7 +26,7 @@ def fetch_poster(movie_id):
 def fetch_cast_info(movie_id):
     movie_api = Movie()
     credits = movie_api.credits(movie_id)
-    cast = credits['cast']
+    cast = credits['cast'][:5]  # Limit to the first 5 cast members
     return cast
 
 def recommend(movie, num_recommendations=10):
@@ -77,7 +77,7 @@ if st.button('Show Recommendation'):
                 st.write("Vote Count:", movie_details.vote_count)
                 st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
 
-                # Fetch and display cast information
+                # Fetch and display cast information (limited to 5 members)
                 cast_info = fetch_cast_info(movie_id)
                 st.write("Cast:")
                 for cast in cast_info:
