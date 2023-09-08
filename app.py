@@ -32,6 +32,11 @@ def recommend(movie, num_recommendations=10):
 
     return recommended_movies
 
+def fetch_movie_details(movie_id):
+    movie_api = Movie()
+    movie_details = movie_api.details(movie_id)
+    return movie_details
+
 st.markdown(
     """
     <div style="text-align: center;">
