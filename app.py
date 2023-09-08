@@ -17,6 +17,7 @@ cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
 
+# Function to fetch movie poster URL
 def fetch_poster(movie_id):
     try:
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
@@ -29,6 +30,7 @@ def fetch_poster(movie_id):
         st.error("Error fetching poster.")
         return None
 
+# Function to fetch movie details
 def fetch_movie_details(movie_id):
     try:
         movie_api = Movie()
@@ -38,6 +40,7 @@ def fetch_movie_details(movie_id):
         st.error("Error fetching movie details.")
         return None
 
+# Function to recommend movies
 def recommend(movie, num_recommendations=10):
     try:
         index = movies[movies['title'] == movie].index[0]
@@ -52,6 +55,7 @@ def recommend(movie, num_recommendations=10):
         st.error("Error generating recommendations.")
         return []
 
+# Streamlit UI
 st.markdown(
     """
     <div style="text-align: center;">
