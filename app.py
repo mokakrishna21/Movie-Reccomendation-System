@@ -6,17 +6,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
 
-# Load movie data
 movies = pickle.load(open('movie_list.pkl', 'rb'))
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
 
-# Configure TMDB API
 tmdb = TMDb()
 tmdb.api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"
 
-# Function to fetch movie poster URL
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
     data = requests.get(url)
@@ -25,19 +22,11 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
-# Function to fetch movie details including cast
 def fetch_movie_details(movie_id):
     movie_api = Movie()
     movie_details = movie_api.details(movie_id)
-    
-    # Fetch cast information
-    credits = movie_api.credits(movie_id)
-    cast = credits.get("cast", [])
-    movie_details.casts = {'cast': cast}
-    
     return movie_details
 
-# Function to recommend movies
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
@@ -48,10 +37,15 @@ def recommend(movie, num_recommendations=10):
 
     return recommended_movies
 
-# Streamlit app title
-st.title("Poppy's Recommender System")
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <h1 style="font-size: 48px;">Poppy's Recommender System</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-# Dropdown for selecting a movie
 movie_list = movies['title'].values
 selected_movie = st.selectbox(
     "Type or select a movie from the dropdown",
@@ -68,14 +62,13 @@ if st.button('Show Recommendation'):
         with col2:
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
-            # Display movie details
-            expander.write(f"**{movie_name}**")
-            expander.write("Overview:")
-            expander.write(movie_details.overview)
-            expander.write("Release Date:", movie_details.release_date)
-            expander.write("Average Vote:", movie_details.vote_average)
-            expander.write("Vote Count:", movie_details.vote_count)
-            expander.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
-            expander.write("Cast:")
-            for cast in movie_details.casts['cast'][:5]:
-                expander.write(f"- {cast['name']} as {cast['character']}")
+            # Display the movie title in bigger and bold text
+            st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
+            st.write("Overview:", movie_details.overview)
+            st.write("Release Date:", movie_details.release_date)
+            st.write("Average Vote:", movie_details.vote_average)
+            st.write("Vote Count:", movie_details.vote_count)
+            st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            
+
+
