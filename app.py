@@ -25,6 +25,12 @@ def fetch_poster(movie_id):
 def fetch_movie_details(movie_id):
     movie_api = Movie()
     movie_details = movie_api.details(movie_id)
+    
+    # Fetch cast information
+    credits = movie_api.credits(movie_id)
+    cast = credits.get("cast", [])
+    movie_details.casts = {'cast': cast}
+    
     return movie_details
 
 def recommend(movie, num_recommendations=10):
@@ -63,12 +69,12 @@ if st.button('Show Recommendation'):
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
             # Display the movie title in bigger and bold text
-            expander.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-            expander.write("Overview:", movie_details.overview)
-            expander.write("Release Date:", movie_details.release_date)
-            expander.write("Average Vote:", movie_details.vote_average)
-            expander.write("Vote Count:", movie_details.vote_count)
-            expander.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
-            expander.write("Cast:")
+            st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
+            st.write("Overview:", movie_details.overview)
+            st.write("Release Date:", movie_details.release_date)
+            st.write("Average Vote:", movie_details.vote_average)
+            st.write("Vote Count:", movie_details.vote_count)
+            st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            st.write("Cast:")
             for cast in movie_details.casts['cast'][:5]:
-                expander.write(f"- {cast['name']} as {cast['character']}")
+                st.write(f"- {cast['name']} as {cast['character']}")
