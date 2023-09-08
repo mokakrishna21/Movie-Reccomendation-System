@@ -31,9 +31,10 @@ def fetch_cast_info(movie_id):
     movie_api = Movie()
     credits = movie_api.credits(movie_id)
     if 'cast' in credits:
-        return credits['cast'][:5]  # Limit to the first 5 cast members
+        # Limit to the first 5 cast members
+        return credits['cast'][:5]
     else:
-        return None
+        return []
 
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
@@ -86,4 +87,3 @@ if st.button('Show Recommendation'):
                 st.write("Cast information not available.")
 else:
     st.write("Click 'Show Recommendation' to get movie recommendations.")
-
