@@ -17,7 +17,6 @@ cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
 
-# Function to fetch movie poster
 def fetch_poster(movie_id):
     try:
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
@@ -30,7 +29,6 @@ def fetch_poster(movie_id):
         st.error("Error fetching poster.")
         return None
 
-# Function to fetch movie details
 def fetch_movie_details(movie_id):
     try:
         movie_api = Movie()
@@ -40,7 +38,6 @@ def fetch_movie_details(movie_id):
         st.error("Error fetching movie details.")
         return None
 
-# Function to fetch cast information with error handling
 def fetch_cast_info(movie_id):
     try:
         movie_api = Movie()
@@ -49,15 +46,11 @@ def fetch_cast_info(movie_id):
             cast = credits['cast']
             return cast
         else:
-            st.warning("No cast information available for this movie.")
             return []
     except Exception as e:
-        st.error(f"Error fetching cast information: {str(e)}")
+        st.error("Error fetching cast information.")
         return []
 
-
-
-# Function to recommend movies
 def recommend(movie, num_recommendations=10):
     try:
         index = movies[movies['title'] == movie].index[0]
@@ -72,7 +65,6 @@ def recommend(movie, num_recommendations=10):
         st.error("Error generating recommendations.")
         return []
 
-# Streamlit app
 st.markdown(
     """
     <div style="text-align: center;">
@@ -90,14 +82,10 @@ selected_movie = st.selectbox(
 
 if st.button('Show Recommendation'):
     recommended_movies = recommend(selected_movie, num_recommendations=5)
-    for movie_id, _ in recommended_movies:
+    for movie_id, movie_poster in recommended_movies:
         col1, col2 = st.columns([1, 3])
         with col1:
-            movie_poster = fetch_poster(movie_id)
-            if movie_poster:
-                st.image(movie_poster, use_column_width=True)
-            else:
-                st.write("Poster not available.")
+            st.image(movie_poster, use_column_width=True)
 
         with col2:
             # Fetch movie details here using the movie_id
