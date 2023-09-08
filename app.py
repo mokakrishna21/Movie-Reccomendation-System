@@ -6,48 +6,33 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
 
-# Load the movie data
 movies = pickle.load(open('movie_list.pkl', 'rb'))
-
-# Initialize CountVectorizer for text similarity
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
 
-# Initialize TMDB API with your API key
-tmdb_api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"  # Replace with your TMDB API key
 tmdb = TMDb()
-tmdb.api_key = tmdb_api_key
+tmdb.api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"
 
-# Function to fetch movie poster
 def fetch_poster(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={c6ac6f6b45fdf5951c59c02520f63b5c}&language=en-US"
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
     data = requests.get(url)
     data = data.json()
     poster_path = data['poster_path']
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
-# Function to fetch movie details
-def fetch_movie_details(movie_id):
-    movie_api = Movie()
-    movie_details = movie_api.details(movie_id)
-    return movie_details
-
-# Function to recommend movies
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
     recommended_movies = []
     for i in distances[1:num_recommendations + 1]:
-        movie_id = movies.iloc[i[0]].movie_id
-        recommended_movies.append((movies.iloc[i[0]]['title'], fetch_poster(movie_id), movie_id))
-
-
+        movie_name = movies.iloc[i[0]]['title']
+        movie_id = movies.iloc[i[0]]['movie_id']
+        recommended_movies.append((movie_name, fetch_poster(movie_id), movie_id))
 
     return recommended_movies
 
-# Streamlit app layout
 st.markdown(
     """
     <div style="text-align: center;">
@@ -57,14 +42,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Movie selection dropdown
 movie_list = movies['title'].values
 selected_movie = st.selectbox(
     "Type or select a movie from the dropdown",
     movie_list
 )
 
-# Show recommendation button
 if st.button('Show Recommendation'):
     recommended_movies = recommend(selected_movie, num_recommendations=5)
     for movie_name, movie_poster, movie_id in recommended_movies:
@@ -73,8 +56,9 @@ if st.button('Show Recommendation'):
             st.image(movie_poster, use_column_width=True)
 
         with col2:
-            expander = st.expander(movie_name)
-            movie_details = fetch_movie_details(movie_id)
+            st.write("Movie Title:", movie_name)
+            st.write("Movie ID:", movie_id)
+
             # Display the movie title in bigger and bold text
             st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
             st.write("Overview:", movie_details.overview)
