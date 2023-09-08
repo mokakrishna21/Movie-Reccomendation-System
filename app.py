@@ -77,11 +77,13 @@ if st.button('Show Recommendation'):
                 st.write("Vote Count:", movie_details.vote_count)
                 st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
 
-                # Fetch and display cast information
-                cast_info = fetch_cast_info(movie_id)
-                st.write("Cast:")
-                for i, cast in enumerate(cast_info[:5]):  # Limit the display to 5 cast members
-                    st.write(f"- {cast['name']} as {cast['character']}")
+# Fetch and display cast information
+cast_info = fetch_cast_info(movie_id)
+st.write("Cast:")
+for i, cast in enumerate(cast_info[:5]):  # Limit the display to 5 cast members
+    if 'name' in cast and 'character' in cast:
+        st.write(f"- {cast['name']} as {cast['character']}")
+
 
 
 
