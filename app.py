@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
 
+# Load movie data and perform necessary setup
 movies = pickle.load(open('movie_list.pkl', 'rb'))
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
@@ -14,6 +15,7 @@ similarity = cosine_similarity(vector)
 tmdb = TMDb()
 tmdb.api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"
 
+# Function to fetch movie poster
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
     data = requests.get(url)
@@ -22,20 +24,13 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
+# Function to fetch movie details
 def fetch_movie_details(movie_id):
     movie_api = Movie()
     movie_details = movie_api.details(movie_id)
     return movie_details
 
-def get_cast_info(movie_details):
-    cast_info = []
-    if 'credits' in movie_details and 'cast' in movie_details['credits']:
-        for cast in movie_details['credits']['cast'][:5]:
-            cast_name = cast['name']
-            character_name = cast['character']
-            cast_info.append(f"{cast_name} as {character_name}")
-    return cast_info
-
+# Function to recommend movies
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
@@ -46,6 +41,7 @@ def recommend(movie, num_recommendations=10):
 
     return recommended_movies
 
+# Streamlit app UI
 st.markdown(
     """
     <div style="text-align: center;">
@@ -72,16 +68,16 @@ if st.button('Show Recommendation'):
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
             st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-            st.write("Overview:", movie_details.overview)
-            st.write("Release Date:", movie_details.release_date)
-            st.write("Average Vote:", movie_details.vote_average)
-            st.write("Vote Count:", movie_details.vote_count)
+            st.write("Overview:", movie_details['overview'])
+            st.write("Release Date:", movie_details['release_date'])
+            st.write("Average Vote:", movie_details['vote_average'])
+            st.write("Vote Count:", movie_details['vote_count'])
             st.write("Genres:", ", ".join([genre['name'] for genre in movie_details['genres']]))
             
-            cast_info = get_cast_info(movie_details)
+            cast_info = movie_details.get('casts', {}).get('cast', [])[:5]
             if cast_info:
                 st.write("Cast:")
                 for cast in cast_info:
-                    st.write(f"- {cast}")
+                    st.write(f"- {cast.get('name', 'N/A')} as {cast.get('character', 'N/A')}")
             else:
                 st.write("Cast information not available.")
