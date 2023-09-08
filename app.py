@@ -6,7 +6,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
 
-movies = pickle.load(open('movie_list.pkl', 'rb'))
+# Load movie data from your movie_list.pkl
+with open('movie_list.pkl', 'rb') as file:
+    movies = pickle.load(file)
+
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
@@ -65,6 +68,9 @@ if st.button('Show Recommendation'):
         st.write("Average Vote:", movie_details.vote_average)
         st.write("Vote Count:", movie_details.vote_count)
         st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+        
+        # Fetch and display cast information
+        cast_info = movie_details.casts['cast'][:5]
         st.write("Cast:")
-        for cast in movie_details.casts['cast'][:5]:
+        for cast in cast_info:
             st.write(f"- {cast['name']} as {cast['character']}")
