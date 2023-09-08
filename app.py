@@ -5,20 +5,23 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tmdbv3api import TMDb, Movie
-import pprint
 
-# Load movie data and perform necessary setup
+# Load the movie data
 movies = pickle.load(open('movie_list.pkl', 'rb'))
+
+# Initialize CountVectorizer for text similarity
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vector = cv.fit_transform(movies['tags']).toarray()
 similarity = cosine_similarity(vector)
 
+# Initialize TMDB API with your API key
+tmdb_api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"  # Replace with your TMDB API key
 tmdb = TMDb()
-tmdb.api_key = "c6ac6f6b45fdf5951c59c02520f63b5c"
+tmdb.api_key = tmdb_api_key
 
 # Function to fetch movie poster
 def fetch_poster(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={tmdb_api_key}&language=en-US"
     data = requests.get(url)
     data = data.json()
     poster_path = data['poster_path']
@@ -31,17 +34,6 @@ def fetch_movie_details(movie_id):
     movie_details = movie_api.details(movie_id)
     return movie_details
 
-# Function to extract cast information
-def get_cast_info(movie_details):
-    cast_info = []
-    if 'credits' in movie_details:
-        cast_list = movie_details['credits']['cast']
-        for cast_member in cast_list[:5]:
-            cast_name = cast_member.get('name', 'N/A')
-            character_name = cast_member.get('character', 'N/A')
-            cast_info.append(f"{cast_name} as {character_name}")
-    return cast_info
-
 # Function to recommend movies
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
@@ -53,7 +45,7 @@ def recommend(movie, num_recommendations=10):
 
     return recommended_movies
 
-# Streamlit app UI
+# Streamlit app layout
 st.markdown(
     """
     <div style="text-align: center;">
@@ -63,12 +55,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Movie selection dropdown
 movie_list = movies['title'].values
 selected_movie = st.selectbox(
     "Type or select a movie from the dropdown",
     movie_list
 )
 
+# Show recommendation button
 if st.button('Show Recommendation'):
     recommended_movies = recommend(selected_movie, num_recommendations=5)
     for movie_name, movie_poster, movie_id in recommended_movies:
@@ -79,21 +73,13 @@ if st.button('Show Recommendation'):
         with col2:
             expander = st.expander(movie_name)
             movie_details = fetch_movie_details(movie_id)
+            # Display the movie title in bigger and bold text
             st.markdown(f"<h2><b>{movie_name}</b></h2>", unsafe_allow_html=True)
-            st.write("Overview:", movie_details.get('overview', 'N/A'))
-            st.write("Release Date:", movie_details.get('release_date', 'N/A'))
-            st.write("Average Vote:", movie_details.get('vote_average', 'N/A'))
-            st.write("Vote Count:", movie_details.get('vote_count', 'N/A'))
-            st.write("Genres:", ", ".join([genre['name'] for genre in movie_details.get('genres', [])]))
-            
-            # Print the structure of movie_details to inspect it
-            st.write("Movie Details Structure:")
-            pprint.pprint(movie_details)
-            
-            cast_info = get_cast_info(movie_details)
-            if cast_info:
-                st.write("Cast:")
-                for cast in cast_info:
-                    st.write(f"- {cast}")
-            else:
-                st.write("Cast information not available.")
+            st.write("Overview:", movie_details.overview)
+            st.write("Release Date:", movie_details.release_date)
+            st.write("Average Vote:", movie_details.vote_average)
+            st.write("Vote Count:", movie_details.vote_count)
+            st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+            st.write("Cast:")
+            for cast in movie_details.casts['cast'][:5]:
+                st.write(f"- {cast['name']} as {cast['character']}")
