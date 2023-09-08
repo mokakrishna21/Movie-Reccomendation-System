@@ -40,6 +40,17 @@ def fetch_movie_details(movie_id):
         st.error("Error fetching movie details.")
         return None
 
+# Function to fetch cast information
+def fetch_cast_info(movie_id):
+    try:
+        movie_api = Movie()
+        credits = movie_api.credits(movie_id)
+        cast = credits['cast']
+        return cast
+    except Exception as e:
+        st.error("Error fetching cast information.")
+        return []
+
 # Function to recommend movies
 def recommend(movie, num_recommendations=10):
     try:
@@ -86,14 +97,21 @@ if st.button('Show Recommendation'):
             # Fetch movie details here using the movie_id
             movie_details = fetch_movie_details(movie_id)
             if movie_details:
-                st.write("Movie Title:", movie_details.title)
+                # Display the movie title in bigger and bold text
+                st.markdown(f"<h2><b>{movie_details.title}</b></h2>", unsafe_allow_html=True)
                 st.write("Overview:", movie_details.overview)
                 st.write("Release Date:", movie_details.release_date)
                 st.write("Average Vote:", movie_details.vote_average)
                 st.write("Vote Count:", movie_details.vote_count)
                 st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
 
-                # Fetch and display cast information (you can add your code here)
-                st.write("Cast: (Cast information goes here)")
+                # Fetch and display cast information
+                cast_info = fetch_cast_info(movie_id)
+                if cast_info:
+                    st.write("Cast:")
+                    for cast in cast_info[:5]:
+                        st.write(f"- {cast['name']} as {cast['character']}")
+                else:
+                    st.write("Cast information not available.")
             else:
                 st.write("Movie details not available.")
