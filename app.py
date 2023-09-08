@@ -80,7 +80,7 @@ if st.button('Show Recommendation'):
                 # Fetch and display cast information
                 cast_info = fetch_cast_info(movie_id)
                 st.write("Cast:")
-                for cast in cast_info[:5]:
+                for cast in cast_info:
                     st.write(f"- {cast['name']} as {cast['character']}")
             else:
                 st.write("Movie details not available.")
