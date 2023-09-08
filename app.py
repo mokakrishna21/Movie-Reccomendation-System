@@ -104,7 +104,7 @@ if st.button('Show Recommendation'):
                 if cast_info:
                     st.write("Cast:")
                     for cast in cast_info[:5]:
-                        st.write(f"- {cast['name']} as {cast['character']}")
+                        st.write(f"- {cast['name']} as {cast.get('character', 'N/A')}")
                 else:
                     st.write("Cast information not available.")
             else:
