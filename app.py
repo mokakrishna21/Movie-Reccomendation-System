@@ -33,7 +33,7 @@ def fetch_cast_info(movie_id):
     cast_info = []
     if 'cast' in credits and isinstance(credits['cast'], list):
         # Limit to the first 5 cast members
-        for member in credits['cast'][:5]:
+        for member in credits['cast']:
             if 'name' in member and 'character' in member:
                 cast_info.append({"name": member['name'], "character": member['character']})
     return cast_info
