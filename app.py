@@ -21,12 +21,18 @@ tmdb.api_key = tmdb_api_key
 
 # Function to fetch movie poster
 def fetch_poster(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={tmdb_api_key}&language=en-US"
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={c6ac6f6b45fdf5951c59c02520f63b5c}&language=en-US"
     data = requests.get(url)
     data = data.json()
     poster_path = data['poster_path']
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
+
+# Function to fetch movie details
+def fetch_movie_details(movie_id):
+    movie_api = Movie()
+    movie_details = movie_api.details(movie_id)
+    return movie_details
 
 # Function to recommend movies
 def recommend(movie, num_recommendations=10):
@@ -35,7 +41,7 @@ def recommend(movie, num_recommendations=10):
     recommended_movies = []
     for i in distances[1:num_recommendations + 1]:
         movie_id = movies.iloc[i[0]].movie_id
-        recommended_movies.append((movies.iloc[i[0]].title, fetch_poster(movie_id), movie_id))
+        recommended_movies.append((movies.iloc(i[0]).title, fetch_poster(movie_id), movie_id))
 
     return recommended_movies
 
@@ -79,3 +85,5 @@ if st.button('Show Recommendation'):
             if cast_info:
                 for cast in cast_info[:5]:
                     st.write(f"- {cast['name']} as {cast['character']}")
+            else:
+                st.write("Cast information not available.")
