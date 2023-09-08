@@ -30,11 +30,13 @@ def fetch_movie_details(movie_id):
 def fetch_cast_info(movie_id):
     movie_api = Movie()
     credits = movie_api.credits(movie_id)
+    cast_info = []
     if 'cast' in credits:
         # Limit to the first 5 cast members
-        return credits['cast'][:5]
-    else:
-        return []
+        for member in credits['cast'][:5]:
+            cast_info.append({"name": member['name'], "character": member['character']})
+    return cast_info
+
 
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
