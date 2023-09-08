@@ -22,12 +22,9 @@ def fetch_poster(movie_id):
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=c6ac6f6b45fdf5951c59c02520f63b5c&language=en-US"
         data = requests.get(url)
         data = data.json()
-        if 'poster_path' in data:
-            poster_path = data['poster_path']
-            full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-            return full_path
-        else:
-            return None
+        poster_path = data['poster_path']
+        full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+        return full_path
     except Exception as e:
         st.error("Error fetching poster.")
         return None
@@ -40,6 +37,16 @@ def fetch_movie_details(movie_id):
     except Exception as e:
         st.error("Error fetching movie details.")
         return None
+
+def fetch_cast_info(movie_id):
+    try:
+        movie_api = Movie()
+        credits = movie_api.credits(movie_id)
+        cast = credits['cast']
+        return cast
+    except Exception as e:
+        st.error("Error fetching cast information.")
+        return []
 
 def recommend(movie, num_recommendations=10):
     try:
@@ -75,10 +82,7 @@ if st.button('Show Recommendation'):
     for movie_id, movie_poster in recommended_movies:
         col1, col2 = st.columns([1, 3])
         with col1:
-            if movie_poster:
-                st.image(movie_poster, use_column_width=True)
-            else:
-                st.write("Poster not available")
+            st.image(movie_poster, use_column_width=True)
 
         with col2:
             # Fetch movie details here using the movie_id
@@ -91,5 +95,14 @@ if st.button('Show Recommendation'):
                 st.write("Average Vote:", movie_details.vote_average)
                 st.write("Vote Count:", movie_details.vote_count)
                 st.write("Genres:", ", ".join([genre.name for genre in movie_details.genres]))
+
+                # Fetch and display cast information
+                cast_info = fetch_cast_info(movie_id)
+                st.write("Cast:")
+                for cast in cast_info[:5]:
+                    try:
+                        st.write(f"- {cast['name']} as {cast['character']}")
+                    except Exception as e:
+                        st.warning("Error displaying cast member.")
             else:
                 st.write("Movie details not available.")
