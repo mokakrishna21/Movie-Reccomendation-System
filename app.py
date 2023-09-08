@@ -37,8 +37,6 @@ def fetch_cast_info(movie_id):
             cast_info.append({"name": member['name'], "character": member['character']})
     return cast_info
 
-
-
 def recommend(movie, num_recommendations=10):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
