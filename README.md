@@ -2,7 +2,7 @@
 
 Poppy's Recommender System is a web-based movie recommendation application that helps users discover movies similar to their favorite ones. Built using Streamlit and leveraging machine learning techniques like cosine similarity, this application provides users with personalized movie recommendations.
 <br>
-https://poppys-recommender.streamlit.app/
+https://poppy-movie-reccomendation-system.streamlit.app
 
 ## Features
 
