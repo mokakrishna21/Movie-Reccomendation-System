@@ -76,15 +76,13 @@ if st.button('Show Recommendation'):
         col1, col2 = st.columns([1, 3])
         with col1:
             if movie_poster:
-                st.image(movie_poster, use_column_width=True)
+                st.image(movie_poster, use_container_width=True)  # Fixed parameter here
             else:
                 st.write("Poster not available")
 
         with col2:
-            # Fetch movie details here using the movie_id
             movie_details = fetch_movie_details(movie_id)
             if movie_details:
-                # Display the movie title in bigger and bold text
                 st.markdown(f"<h2><b>{movie_details.title}</b></h2>", unsafe_allow_html=True)
                 st.write("Overview:", movie_details.overview)
                 st.write("Release Date:", movie_details.release_date)
